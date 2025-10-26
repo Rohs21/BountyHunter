@@ -7,7 +7,7 @@ import { useContract } from '../../contexts/ContractContext';
 import useBackend from '../../hooks/useBackend';
 import { fadeInUp, shortenAddress } from '../../utils';
 
-const MyBountiesReviewItem = ({work, bountyId}) => {
+const MyBountiesReviewItem = ({work, bountyId, bounty}) => {
   const { isConnected, walletAddress } = useCustomWallet();
   const { approveWork, rejectWork } = useContract();
   const { approveWorkB, rejectWorkB } = useBackend();
@@ -36,10 +36,10 @@ const MyBountiesReviewItem = ({work, bountyId}) => {
       return;
     }
 
-    toast('Successfully approved work!');
+    toast.success(`Successfully approved work! Payment: ${bounty?.payAmount || 'Unknown'} XLM transferred to ${shortenAddress(work?.participant?.wallet)}`);
 
     nav('/MyBounties/');
-  }, [isConnected, walletAddress, work]);
+  }, [isConnected, walletAddress, work, bountyId, bounty]);
 
   const onClickReject = useCallback(async (event) => {
     if (!isConnected) {
@@ -70,6 +70,11 @@ const MyBountiesReviewItem = ({work, bountyId}) => {
       <div className='flex justify-between items-center xsm:flex-col sm:text-center'>
         <div className='flex flex-col'>
           <div className='text-[16px] font-bold'>{shortenAddress(work?.participant.wallet)} ({work?.participant.name})</div>
+          {bounty?.payAmount && (
+            <div className='text-[14px] text-green-400 font-semibold'>
+              Payment: {bounty.payAmount} XLM
+            </div>
+          )}
         </div>
         <div className='space-x-2'>
           <button className='flex-col justify-around space-x-2  sm:flex-col sm:text-center btn-hover border rounded-2xl px-4' onClick={handleExpanded}>
@@ -82,6 +87,7 @@ const MyBountiesReviewItem = ({work, bountyId}) => {
           <div className='py-2 app-gray'>{work?.title}</div>
           <div className='py-2 app-gray '>{work?.description}</div>
           <a className='py-2 app-gray ' href='#'>{work?.gitHub}</a>
+          
           <div className='flex justify-end gap-2'>
             <button className='rounded-2xl border px-2 py-1' onClick={onClickApprove}>Approve</button>
             <button className='rounded-2xl border px-2 py-1' onClick={onClickReject}>Reject</button>

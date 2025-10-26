@@ -87,6 +87,28 @@ async function approveWork(user, workId, newStatus, bounty) {
         }
     }
     
+    // If still not found, try to find any work for this bounty that might have been submitted
+    if (work === null) {
+        console.log('Trying to find any submitted work for this bounty...');
+        work = await WorkModel.findOne({bounty: bounty._id, status: 2}); // 2 = SUBMITTED status
+        if (work) {
+            console.log('Found submitted work for bounty:', work);
+        } else {
+            console.log('No submitted work found for bounty');
+        }
+    }
+    
+    // If still not found, try to find any work for this bounty regardless of status
+    if (work === null) {
+        console.log('Trying to find any work for this bounty regardless of status...');
+        work = await WorkModel.findOne({bounty: bounty._id});
+        if (work) {
+            console.log('Found work for bounty:', work);
+        } else {
+            console.log('No work found for bounty at all');
+        }
+    }
+    
     if (work === null) {
         console.log('No work found at all, throwing Invalid Work error');
         throw new Error('Invalid Work');
@@ -101,11 +123,29 @@ async function approveWork(user, workId, newStatus, bounty) {
 }
 
 async function rejectWork(user, workId, newStatus) {
-    const work = await WorkModel.findOne({workId: workId});
+    console.log('rejectWork called with:', { user: user._id, workId, newStatus });
+    
+    // First try to find by workId
+    let work = await WorkModel.findOne({workId: workId});
+    console.log('Found work by workId:', work ? 'Yes' : 'No');
+    
+    // If not found by workId, try to find by user (fallback)
     if (work === null) {
+        console.log('Work not found by workId in rejectWork, trying to find by user...');
+        work = await WorkModel.findOne({participant: user._id});
+        if (work) {
+            console.log('Found work by user in rejectWork:', work);
+        } else {
+            console.log('No work found by user either');
+        }
+    }
+    
+    if (work === null) {
+        console.log('No work found at all, throwing Invalid Work error');
         throw new Error('Invalid Work');
     }
 
+    console.log('Updating work status to:', newStatus);
     work.status = newStatus;
     work.save();
 

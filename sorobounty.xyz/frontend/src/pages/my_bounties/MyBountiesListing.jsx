@@ -88,7 +88,7 @@ const MyBountiesListingBody = ({bounty, works}) => {
               status = {bounty?.status}
           />
           {Array.isArray(works) && works.map((work, idx) => {
-            return (<MyBountiesReviewItem key={idx} work={work} bountyId={bounty?.bountyId}/>)
+            return (<MyBountiesReviewItem key={idx} work={work} bountyId={bounty?.bountyId} bounty={bounty}/>)
           })}
           <div className='w-full my-2 py-3'>
             <button className='text-[18px] w-full border rounded-2xl px-2 py-2 btn-hover' onClick={onClickCancel}>Cancel</button>
