@@ -70,7 +70,7 @@ const MainHeader = function () {
                                     className='img-fluid'
                                     alt='#'
                                   />
-                                  Bounty Hunter
+                                  Bounty-X
                                 </div>
                             </NavLink>
                         </div>
