@@ -24,21 +24,45 @@ const MyBountiesReviewItem = ({work, bountyId, bounty}) => {
       return;
     }
 
-    const res1 = await approveWork(walletAddress, work?.workId);
-    if (res1) {
-      toast.error('Failed to approve work!');
-      return;
+    try {
+      // First ensure the token is registered in the participant's wallet
+      const server = new SorobanClient.Server(
+        chainId === 169 ? 'https://rpc-mainnet.stellar.org' : 'https://rpc-futurenet.stellar.org'
+      );
+
+      // Get the token details from the bounty
+      const tokenId = bounty.payToken;
+      
+      // Show a loading message
+      toast.info('Processing approval. This may take a few moments...');
+
+      // First call the smart contract to handle the token transfer
+      const res1 = await approveWork(walletAddress, work?.workId);
+      if (res1 !== 0) {  // Check for exact success value
+        toast.error('Failed to approve work on blockchain!');
+        return;
+      }
+
+      // Then update the backend status
+      const res2 = await approveWorkB(walletAddress, work?.workId, bountyId);
+      if (res2 !== 0) {  // Check for exact success value
+        toast.error('Failed to update work status!');
+        return;
+      }
+
+      // Notify the user to check their wallet
+      toast.success(
+        `Work approved successfully! Payment has been sent. Please note:
+        1. The recipient may need to add the token to their wallet to see it
+        2. It may take a few moments for the balance to update
+        Amount: ${bounty?.payAmount || 'Unknown'} tokens to ${shortenAddress(work?.participant?.wallet)}`
+      );
+
+      nav('/MyBounties/');
+    } catch (error) {
+      console.error('Error in approve work:', error);
+      toast.error(`Transaction failed: ${error.message || 'Unknown error'}`);
     }
-
-    const res2 = await approveWorkB(walletAddress, work?.workId, bountyId);
-    if (res2) {
-      toast.error('Failed to approve work!');
-      return;
-    }
-
-    toast.success(`Successfully approved work! Payment: ${bounty?.payAmount || 'Unknown'} XLM transferred to ${shortenAddress(work?.participant?.wallet)}`);
-
-    nav('/MyBounties/');
   }, [isConnected, walletAddress, work, bountyId, bounty]);
 
   const onClickReject = useCallback(async (event) => {
