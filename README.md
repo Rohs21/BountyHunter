@@ -6,7 +6,7 @@ The Bounty Hunter Web Application is a platform that facilitates the creation an
 Clone the project repository from GitHub:
 
 bash
-$ git clone https://github.com/Rohs21/bountyx
+$ git clone https://github.com/Rohs21/BountyHunter
 
 
 ## Build & Deploy Smart Contract
