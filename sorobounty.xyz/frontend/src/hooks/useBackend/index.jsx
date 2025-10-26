@@ -3,7 +3,7 @@ import {BountyStatus, WorkStatus} from '../../contexts/ContractContext';
 
 const useBackend = () => {
     // Use fixed backend URL to avoid process.env issues
-    const BACKEND_URL = 'https://bountyhunter-1.onrender.com//api/bounty/';
+    const BACKEND_URL = 'https://bountyhunter-1.onrender.com/api/bounty/';
 
     // Helper function to generate a valid u32 work ID
     const generateValidWorkId = () => {
