@@ -262,10 +262,11 @@ const InBountyListing = () => {
         workId: work?.workId,
         title,
         description,
-        gitHub
+        gitHub,
+        bountyId: bounty?.bountyId
       });
 
-      const res2 = await submitWorkB(walletAddress, work?.workId, title, description, gitHub);
+      const res2 = await submitWorkB(walletAddress, work?.workId, title, description, gitHub, bounty?.bountyId);
       console.log('Backend submission result:', res2);
 
       if (res2 && typeof res2 === 'object' && res2.error) {

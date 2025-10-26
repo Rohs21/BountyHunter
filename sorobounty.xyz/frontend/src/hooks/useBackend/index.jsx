@@ -376,8 +376,8 @@ const useBackend = () => {
                 throw new Error('Bounty not found');
             }
             
-            // Generate a valid u32 work ID
-            const validWorkId = generateValidWorkId();
+            // Use the workId from blockchain, or generate one if not provided
+            const validWorkId = workId && workId > 0 ? workId : generateValidWorkId();
             
             const payload = {
                 wallet: wallet,
@@ -483,28 +483,34 @@ const useBackend = () => {
         return {};
     };
 
-const submitWorkB = async (wallet, workId, workTitle, workDesc, workRepo) => {
+const submitWorkB = async (wallet, workId, workTitle, workDesc, workRepo, bountyId) => {
         try {
+            console.log('submitWorkB received parameters:', { wallet, workId, workTitle, workDesc, workRepo, bountyId });
+            
             // Validate workId is a proper u32
             const parsedWorkId = typeof workId === 'string' ? parseInt(workId, 10) : workId;
             if (!Number.isInteger(parsedWorkId) || parsedWorkId < 0 || parsedWorkId > 4294967295) {
                 throw new Error('Invalid work ID format');
             }
 
+            const requestBody = {
+                'wallet': wallet,
+                'workId': parsedWorkId,
+                'title': workTitle,
+                'description': workDesc,
+                'workRepo': workRepo,
+                'bountyId': bountyId,
+                'status': WorkStatus.SUBMITTED
+            };
+            
+            console.log('Sending request body:', requestBody);
+
             const res = await fetch(BACKEND_URL + 'submit_work', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    'wallet': wallet,
-                    'workId': parsedWorkId,
-                    'workTitle': workTitle,
-                    'workDesc': workDesc,
-                    'workRepo': workRepo,
-                    'submitDate': Date.now(),
-                    'status': WorkStatus.SUBMITTED
-                })
+                body: JSON.stringify(requestBody)
             });
 
             const resData = await res.json();
@@ -522,8 +528,10 @@ const submitWorkB = async (wallet, workId, workTitle, workDesc, workRepo) => {
         return -2;
     };
 
-    const approveWorkB = async (wallet, workId) => {
+    const approveWorkB = async (wallet, workId, bountyId) => {
         try {
+            console.log('approveWorkB received parameters:', { wallet, workId, bountyId });
+            
             const res = await fetch(BACKEND_URL + 'approve_work', {
                 method: 'POST',
                 headers: {
@@ -532,6 +540,7 @@ const submitWorkB = async (wallet, workId, workTitle, workDesc, workRepo) => {
                 body: JSON.stringify({
                     'wallet': wallet,
                     'workId': workId,
+                    'bountyId': bountyId,
                     'status': WorkStatus.APPROVED
                 })
             });

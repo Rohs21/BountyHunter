@@ -36,8 +36,19 @@ async function getWork(user, bounty) {
     return works;
 }
 
-async function submitWork(user, workId, title, description, workRepo, submitDate, newStatus) {
-    const work = await WorkModel.findOne({workId: workId});
+async function submitWork(user, workId, title, description, workRepo, submitDate, newStatus, bounty) {
+    // First try to find by workId
+    let work = await WorkModel.findOne({workId: workId});
+    
+    // If not found by workId, try to find by user and bounty (fallback)
+    if (work === null) {
+        console.log('Work not found by workId, trying to find by user and bounty...');
+        work = await WorkModel.findOne({participant: user._id, bounty: bounty._id});
+        if (work) {
+            console.log('Found work by user and bounty:', work);
+        }
+    }
+    
     if (work === null) {
         throw new Error('Invalid Work');
     }
@@ -57,12 +68,31 @@ async function countSubmissions(bounty, countStatus) {
     return await WorkModel.countDocuments({bounty: bounty, status: countStatus});
 }
 
-async function approveWork(user, workId, newStatus) {
-    const work = await WorkModel.findOne({workId: workId});
+async function approveWork(user, workId, newStatus, bounty) {
+    console.log('approveWork called with:', { user: user._id, workId, newStatus, bounty: bounty?._id });
+    
+    // First try to find by workId
+    let work = await WorkModel.findOne({workId: workId});
+    console.log('Found work by workId:', work ? 'Yes' : 'No');
+    
+    // If not found by workId, try to find by user and bounty (fallback)
     if (work === null) {
+        console.log('Work not found by workId in approveWork, trying to find by user and bounty...');
+        console.log('Looking for work with participant:', user._id, 'and bounty:', bounty._id);
+        work = await WorkModel.findOne({participant: user._id, bounty: bounty._id});
+        if (work) {
+            console.log('Found work by user and bounty in approveWork:', work);
+        } else {
+            console.log('No work found by user and bounty either');
+        }
+    }
+    
+    if (work === null) {
+        console.log('No work found at all, throwing Invalid Work error');
         throw new Error('Invalid Work');
     }
 
+    console.log('Updating work status to:', newStatus);
     work.status = newStatus;
     work.save();
 

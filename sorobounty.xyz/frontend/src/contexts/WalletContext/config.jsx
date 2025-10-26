@@ -11,7 +11,7 @@ export const networkConfig = {
         chainId: '0x7D7',
         networkName: 'Stellar Futurenet',
         explorerUrl: 'https://futurenet.stellarchain.io',
-        // use the Soroban RPC host for Futurenet
+        // use the regular Stellar RPC for now
         rpcUrl: 'https://rpc-futurenet.stellar.org',
     },
 };

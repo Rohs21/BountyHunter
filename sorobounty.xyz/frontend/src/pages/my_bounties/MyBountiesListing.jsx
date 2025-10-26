@@ -50,8 +50,8 @@ const MyBountiesListingBody = ({bounty, works}) => {
           <div className='col-lg-7 px-0 pt-0'>
             <ListingDescription bounty={bounty} />
             <div className='flex flex-col gap-3 mt-3'>
-              {works?.map((item, idx) => {
-                return (<MyBountiesReviewItem key={idx} work={item}/>)
+              {Array.isArray(works) && works.map((item, idx) => {
+                return (<MyBountiesReviewItem key={idx} work={item} bountyId={bounty?.bountyId}/>)
               })}
             </div>
           </div>
@@ -87,8 +87,8 @@ const MyBountiesListingBody = ({bounty, works}) => {
               block = {bounty?.block} 
               status = {bounty?.status}
           />
-          {works?.map((work, idx) => {
-            return (<MyBountiesReviewItem key={idx} work={item}/>)
+          {Array.isArray(works) && works.map((work, idx) => {
+            return (<MyBountiesReviewItem key={idx} work={work} bountyId={bounty?.bountyId}/>)
           })}
           <div className='w-full my-2 py-3'>
             <button className='text-[18px] w-full border rounded-2xl px-2 py-2 btn-hover' onClick={onClickCancel}>Cancel</button>
@@ -111,9 +111,11 @@ const MyBountiesListing = () => {
       const singleBounty = await getSingleBounty(bountyId);
       setBounty(singleBounty);
  
-      const submittedWorks = await getWorks(bountyId, WorkStatus.SUBMITTED);
-      console.log('submittedWorks:', submittedWorks);
-      setWorks(submittedWorks);
+      const submittedWorksResult = await getWorks(bountyId, WorkStatus.SUBMITTED);
+      console.log('submittedWorks:', submittedWorksResult);
+      // Extract the works array from the result object
+      const worksArray = submittedWorksResult?.works || [];
+      setWorks(worksArray);
     }
 
     fetchBountyAndWorks(bountyId);

@@ -7,7 +7,7 @@ import { useContract } from '../../contexts/ContractContext';
 import useBackend from '../../hooks/useBackend';
 import { fadeInUp, shortenAddress } from '../../utils';
 
-const MyBountiesReviewItem = ({work}) => {
+const MyBountiesReviewItem = ({work, bountyId}) => {
   const { isConnected, walletAddress } = useCustomWallet();
   const { approveWork, rejectWork } = useContract();
   const { approveWorkB, rejectWorkB } = useBackend();
@@ -30,7 +30,7 @@ const MyBountiesReviewItem = ({work}) => {
       return;
     }
 
-    const res2 = await approveWorkB(walletAddress, work?.workId);
+    const res2 = await approveWorkB(walletAddress, work?.workId, bountyId);
     if (res2) {
       toast.error('Failed to approve work!');
       return;

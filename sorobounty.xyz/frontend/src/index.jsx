@@ -8,7 +8,7 @@ if (typeof window !== 'undefined' && window.fetch) {
   window.fetch = async (input, init = {}) => {
     try {
       const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
-      if (typeof url === 'string' && url.includes('soroban-futurenet.stellar.org') && init && init.body) {
+      if (typeof url === 'string' && url.includes('soroban-testnet.stellar.org') && init && init.body) {
         try {
           const parsed = JSON.parse(init.body.toString());
           if (parsed && parsed.jsonrpc && parsed.method) {
@@ -48,7 +48,7 @@ if (typeof window !== 'undefined' && window.XMLHttpRequest) {
           // If not present, we can't reliably check host, so attempt best-effort parse
           let parsedUrl = url || '';
           // Only attempt to modify calls to soroban-futurenet
-          if (parsedUrl.includes('soroban-futurenet.stellar.org') || body.includes('getLedgerEntries')) {
+          if (parsedUrl.includes('soroban-testnet.stellar.org') || body.includes('getLedgerEntries')) {
             try {
               const json = JSON.parse(body);
               if (json && json.method === 'getLedgerEntries' && Array.isArray(json.params)) {

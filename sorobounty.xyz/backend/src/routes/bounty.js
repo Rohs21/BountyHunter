@@ -194,7 +194,14 @@ router.post('/submit_work', async (request, response) => {
     const user = await getOrCreateUser(query.wallet);
 
     try {
-        const res = await submitWork(user, query.workId, query.title, query.description, query.workRepo, Date.now(), query.status);
+        // Get the bounty to find the work properly
+        const bounty = await getSingleBounty(query.bountyId);
+        if (bounty === null) {
+            response.send({ status: 'failed', error: `Invalid bounty id!` });
+            return;
+        }
+
+        const res = await submitWork(user, query.workId, query.title, query.description, query.workRepo, Date.now(), query.status, bounty);
         response.send({ status: 'success', 
             details: `${user.name ? user.name : user.wallet} ${res === true ? 'successfully submitted' : 'failed to submit'} work${query.workId}` });
     } catch (err) {
@@ -222,13 +229,26 @@ router.get('/count_submissions', async (request, response) => {
 
 router.post('/approve_work', async (request, response) => {
     const query = request.body;
+    console.log('approve_work route received:', query);
+    
     const user = await getOrCreateUser(query.wallet);
+    console.log('User found/created:', user._id);
 
     try {
-        const res = await approveWork(user, query.workId, query.status);
+        // Get the bounty to find the work properly
+        const bounty = await getSingleBounty(query.bountyId);
+        console.log('Bounty found:', bounty ? bounty._id : 'Not found');
+        
+        if (bounty === null) {
+            response.send({ status: 'failed', error: `Invalid bounty id!` });
+            return;
+        }
+
+        const res = await approveWork(user, query.workId, query.status, bounty);
         response.send({ status: 'success', 
             details: `${user.name ? user.name : user.wallet} ${res === true? 'successfully approved': 'failed to approve'} work${query.workId}` });
     } catch (err) {
+        console.log('Error in approve_work route:', err.message);
         response.send({ status: 'failed', error: err.message });
     }
 });
